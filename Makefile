@@ -50,10 +50,10 @@ kubectl_set_namespace:
 install_kind:
 	@$(setup_environment) && \
 	echo "Installing kind" && \
-	[ $$(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64 && \
-	chmod +x ./kind && \
-	sudo mv ./kind /usr/local/bin/kind && \
-	rm -rf ./kind && \
+	[ $$(uname -m) = x86_64 ] && curl -Lo $(SCRIPT_DIR)/kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64 && \
+	chmod +x $(SCRIPT_DIR)/kind && \
+	sudo mv $(SCRIPT_DIR)/kind /usr/local/bin/kind && \
+	rm -rf $(SCRIPT_DIR)/kind && \
 	kind --version
 
 # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
@@ -63,7 +63,7 @@ install_kubectl:
 	[ $$(uname -m) = x86_64 ] && curl -LO "https://dl.k8s.io/release/v$${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
 	curl -LO "https://dl.k8s.io/release/v$${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
 	echo "$$(cat kubectl.sha256)  kubectl" | sha256sum --check && \
-	sudo mv ./kubectl /usr/local/bin/kubectl && \
+	sudo mv $(SCRIPT_DIR)/kubectl /usr/local/bin/kubectl && \
 	kubectl version --client --output=yaml && \
 	rm -rf kubectl.sha256
 
@@ -143,14 +143,16 @@ ml_pipeline_ui_port_forward: kubectl_set_context kubectl_set_namespace
 #  Python and virtualenv
 # --------------------------------------------------
 install_python:
-	@sudo apt update && \
+	@$(setup_environment) && \
+	sudo apt update && \
 	sudo apt-get install -y python3 python3-pip && \
 	sudo apt install -y build-essential libssl-dev zlib1g-dev \
 		libbz2-dev libreadline-dev libsqlite3-dev curl \
 		libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
 install_pyenv:
-	./scripts/install_pyenv.sh
+	@$(setup_environment) && \
+	$(SCRIPT_DIR)/scripts/install_pyenv.sh
 
 create_venv:
 	@$(setup_environment) && \
@@ -159,7 +161,7 @@ create_venv:
 	pyenv virtualenv $${PYTHON_VERSION} $${VENV_NAME} -f && \
 	pyenv local $${VENV_NAME}
 
-install_requirements:
+install_python_requirements:
 	@pip install -r requirements.txt
 
 lock_dependencies:
