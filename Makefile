@@ -124,6 +124,14 @@ kubectl_view_config:
 	@$(setup_environment) && \
 	kubectl config view
 
+# make get_pod_from_service SERVICE_NAME=ml-pipeline-ui
+get_pod_from_service: kubectl_set_context kubectl_set_namespace
+	@$(setup_environment) && \
+	if [ -z "$(SERVICE_NAME)" ] ; then \
+		echo "SERVICE_NAME is empty. Exiting. Try make foo SERVICE_NAME=ml-pipeline-ui" ; \
+	fi && \
+	$(SCRIPT_DIR)/scripts/get_pod_from_service.sh $(SERVICE_NAME)
+
 # --------------------------------------------------
 #  Kubeflow Pipelines
 # --------------------------------------------------
@@ -135,7 +143,7 @@ install_kubeflow_pipelines: kubectl_set_context kubectl_set_namespace
 
 ml_pipeline_ui_port_forward: kubectl_set_context kubectl_set_namespace
 	@$(setup_environment) && \
-	POD_NAME=$$(kubectl get pods --output custom-columns=":metadata.name" --no-headers | grep "ml-pipeline-ui") && \
+	POD_NAME=$$($(SCRIPT_DIR)/scripts/get_pod_from_service.sh ml-pipeline-ui) && \
 	kubectl wait --for=condition=ready pod/$${POD_NAME} --timeout=20m && \
 	kubectl port-forward -n $${KUBECTL_NAMESPACE} svc/ml-pipeline-ui 8080:80
 
