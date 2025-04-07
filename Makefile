@@ -137,15 +137,21 @@ get_pod_from_service: kubectl_set_context kubectl_set_namespace
 # --------------------------------------------------
 install_kubeflow_pipelines: kubectl_set_context kubectl_set_namespace
 	@$(setup_environment) && \
-	kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$${KUBEFLOW_PIPELINES_VERSION}" && \
+	kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$${KFP_VERSION}" && \
 	kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io && \
-	kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$${KUBEFLOW_PIPELINES_VERSION}"
+	kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$${KFP_VERSION}"
 
 ml_pipeline_ui_port_forward: kubectl_set_context kubectl_set_namespace
 	@$(setup_environment) && \
 	POD_NAME=$$($(SCRIPT_DIR)/scripts/get_pod_from_service.sh ml-pipeline-ui) && \
 	kubectl wait --for=condition=ready pod/$${POD_NAME} --timeout=20m && \
-	kubectl port-forward -n $${KUBECTL_NAMESPACE} svc/ml-pipeline-ui 8080:80
+	kubectl port-forward -n $${KUBECTL_NAMESPACE} svc/ml-pipeline-ui $${KFP_PORT}:80
+
+kfp_basic:
+	@$(setup_environment) && \
+	cd $(SCRIPT_DIR)/kubeflow_pipelines && \
+	python basic.py && \
+	cd -
 
 # --------------------------------------------------
 #  Python and virtualenv

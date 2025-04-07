@@ -1,29 +1,40 @@
-from kfp import dsl
+import os
+
+KFP_ENDPOINT = os.environ["KFP_ENDPOINT"]
 
 
-@dsl.component
-def say_hello(name: str) -> str:
-    hello_text = f"Hello, {name}!"
-    print(hello_text)
-    return hello_text
+# from kfp import dsl
 
 
-@dsl.pipeline
-def hello_pipeline(recipient: str) -> str:
-    hello_task = say_hello(name=recipient)
-    return hello_task.output
+# @dsl.component
+# def say_hello(name: str) -> str:
+#     hello_text = f"Hello, {name}!"
+#     print(hello_text)
+#     return hello_text
 
 
-from kfp import compiler
+# @dsl.pipeline
+# def hello_pipeline(recipient: str) -> str:
+#     hello_task = say_hello(name=recipient)
+#     return hello_task.output
 
-compiler.Compiler().compile(hello_pipeline, "pipeline.yaml")
 
-from kfp.client import Client
+# from kfp import compiler
 
-client = Client(host="localhost:8080")
-run = client.create_run_from_pipeline_package(
-    "pipeline.yaml",
-    arguments={
-        "recipient": "World",
-    },
-)
+# compiler.Compiler().compile(hello_pipeline, "pipeline.yaml")
+
+# from kfp.client import Client
+
+# client = Client(host=KFP_ENDPOINT)
+# run = client.create_run_from_pipeline_package(
+#     "pipeline.yaml",
+#     arguments={
+#         "recipient": "World",
+#     },
+# )
+
+import kfp
+
+client = kfp.Client(host=KFP_ENDPOINT)
+
+print(client.list_experiments())
