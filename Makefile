@@ -137,9 +137,9 @@ get_pod_from_service: kubectl_set_context kubectl_set_namespace
 # --------------------------------------------------
 install_kubeflow_pipelines: kubectl_set_context kubectl_set_namespace
 	@$(setup_environment) && \
-	kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$${KFP_VERSION}" && \
-	kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io && \
-	kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$${KFP_VERSION}"
+	kubectl apply --kustomize="github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$${KUBEFLOW_PIPELINE_VERSION}" && \
+	kubectl wait crd/applications.app.k8s.io --for=condition=established --timeout=60s && \
+	kubectl apply --kustomize="github.com/kubeflow/pipelines/manifests/kustomize/env/platform-agnostic?ref=$${KUBEFLOW_PIPELINE_VERSION}"
 
 ml_pipeline_ui_port_forward: kubectl_set_context kubectl_set_namespace
 	@$(setup_environment) && \

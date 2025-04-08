@@ -1,8 +1,3 @@
-import os
-
-KFP_ENDPOINT = os.environ["KFP_ENDPOINT"]
-
-
 from kfp import dsl
 
 
@@ -25,7 +20,7 @@ compiler.Compiler().compile(hello_pipeline, "pipeline.yaml")
 
 from kfp.client import Client
 
-client = Client(host=KFP_ENDPOINT)
+client = Client(host="http://localhost:8080")
 run = client.create_run_from_pipeline_package(
     "pipeline.yaml",
     arguments={
